@@ -176,7 +176,6 @@
       <div class="progress-bar" id="progressBar"></div>
     </div>
 
-   
     <div class="progress-labels">
       <span class="soft-cap-label">Soft Cap: 1,000,000 USDT</span>
       <span>Hard Cap: 10,000,000 USDT</span>
@@ -216,7 +215,6 @@
 
     <div class="status" id="status"></div>
     
-    <!-- "More details" link at the bottom -->
     <div class="more-details">
       <a href="https://yahyasinwarcoin.com/buy-now" target="_blank" rel="noopener noreferrer">
         More details
@@ -227,6 +225,7 @@
   <!-- Web3 JS -->
   <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
   <script>
+    // Configuration objects
     const CONFIG = {
       PRESALE: {
         ABI: [{"inputs":[{"internalType":"address","name":"_usdtAddress","type":"address"},{"internalType":"address","name":"_sinwarAddress","type":"address"},{"internalType":"address","name":"initialOwner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"EnforcedPause","type":"error"},{"inputs":[],"name":"ExpectedPause","type":"error"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"inputs":[],"name":"ReentrancyGuardReentrantCall","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Paused","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"totalContributions","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalTokensSold","type":"uint256"}],"name":"PresaleEnded","type":"event"},{"anonymous":false,"inputs":[],"name":"PresalePaused","type":"event"},{"anonymous":false,"inputs":[],"name":"PresaleUnpaused","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"usdtAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"tokenAmountReturned","type":"uint256"}],"name":"RefundClaimed","type":"event"},{"anonymous":false,"inputs":[],"name":"RefundsEnabled","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"usdtAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"tokenAmount","type":"uint256"}],"name":"TokensPurchased","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Unpaused","type":"event"},{"inputs":[],"name":"MAX_CONTRIBUTION","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_CONTRIBUTION","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRESALE_RATE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRESALE_TOKENS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claimRefund","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"usdtAmount","type":"uint256"}],"name":"contribute","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"contributions","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"enableRefunds","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"endPresale","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pausePresale","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"presaleEnded","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"purchasedTokens","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"refundsEnabled","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"sinwar","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalContributions","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalTokensSold","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"unpausePresale","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdrawUSDT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdrawUnsoldTokens","outputs":[],"stateMutability":"nonpayable","type":"function"}],
@@ -240,6 +239,14 @@
         CHAIN_ID: 56,
         NAME: 'Binance Smart Chain'
       }
+    };
+
+    
+    const TOKEN_INFO = {
+      ADDRESS: '0x24CC192950AAaC600dc886Ad0005fFe98A5971fF',
+      SYMBOL: 'SW',
+      DECIMALS: 18,
+      IMAGE: 'https://raw.githubusercontent.com/sinwarcoin/SinwarCoin/main/Sinwar%20Coin%20Logo.png'
     };
 
     const PRESALE_CONFIG = {
@@ -294,7 +301,7 @@
         // No injected provider
         if (isMobileDevice()) {
           // Attempt deep link to MetaMask mobile
-          window.location.href = "https://metamask.app.link/dapp/sinwarcoin.github.io/presale";
+          window.location.href = "https://metamask.app.link/dapp/sinwarcoin.github.io/sinwarcoin-presale";
         } else {
           // Desktop fallback: open MetaMask download
           window.open("https://metamask.io/download.html", "_blank");
@@ -401,6 +408,33 @@
         
         updateStatus('Purchase successful!');
         await updateProgress();
+
+        // Prompt the user to add the purchased token to their wallet
+        if (window.ethereum && window.ethereum.request) {
+          try {
+            const tokenAdded = await window.ethereum.request({
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC20',
+                options: {
+                  address: TOKEN_INFO.ADDRESS,
+                  symbol: TOKEN_INFO.SYMBOL,
+                  decimals: TOKEN_INFO.DECIMALS,
+                  image: TOKEN_INFO.IMAGE
+                }
+              }
+            });
+            if (tokenAdded) {
+              console.log('Token successfully added!');
+              updateStatus('Purchase successful! Token added to wallet.');
+            } else {
+              console.log('User rejected token addition.');
+            }
+          } catch (err) {
+            console.error('Error while adding token:', err);
+            updateStatus('Purchase successful! But failed to add token to wallet: ' + err.message, true);
+          }
+        }
       } catch (error) {
         console.error('Transaction error:', error);
         updateStatus('Transaction failed: ' + error.message, true);
