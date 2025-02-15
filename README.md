@@ -1,2 +1,3 @@
 # SinWar Coin Presale
-Official repository for SinWar Coin Pre-sale event
+This is the official Github Repository for SinWar Coin Pre-Sale Contract Address. 
+Website: https://yahyasinwarcoin.com/
