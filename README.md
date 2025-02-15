@@ -1,2 +1,2 @@
-# presale
-Official repository for the presale event
+# SinWar Coin Presale
+Official repository for SinWar Coin Pre-sale event
