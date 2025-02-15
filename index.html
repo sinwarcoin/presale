@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SinWar Presale</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background: #ffffffee;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 1.5rem;
+    }
+    .logo {
+      height: 60px;
+      width: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      object-fit: cover;
+      border: 2px solid #FFA500;
+    }
+    h1 {
+      margin: 0;
+      color: #444;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+
+    /* Progress Container */
+    .progress-container {
+      margin: 1.5rem 0 1rem;
+      background: #e2e2e2;
+      border-radius: 10px;
+      height: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #4CAF50;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+      width: 0;
+    }
+    /* Vertical line marking the soft cap */
+    .soft-cap-marker {
+      position: absolute;
+      left: 10%;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: #ff5722;
+    }
+
+    /* Labels under the progress bar */
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #666;
+      font-weight: bold;
+    }
+    .progress-labels span {
+      flex: 1;
+      text-align: center;
+    }
+    .soft-cap-label {
+      color: #ff5722;
+    }
+
+    /* Shows "Raised: x USDT / Hard Cap" */
+    .progress-stats {
+      margin: 1rem 0;
+      font-size: 1.1rem;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    /* Buttons */
+    button {
+      background-color: #FFA500;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 1rem 0;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #e59400;
+      transform: translateY(-1px);
+    }
+
+    /* Input for USDT */
+    input {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 1rem 0;
+      width: 220px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    /* Status messages */
+    .status {
+      margin-top: 1rem;
+      color: #007bff;
+      font-weight: bold;
+      min-height: 20px;
+    }
+
+    /* Wallet info */
+    .wallet-info {
+      margin: 1rem 0;
+      padding: 1rem;
+      background-color: #f2f2f2;
+      border-radius: 8px;
+      color: #333;
+    }
+
+    /* Refund Section */
+    .refund-section {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background-color: #fff3cd;
+      border-radius: 8px;
+      border: 1px solid #ffeeba;
+      display: none; /* shown only if refundsEnabled == true */
+    }
+    .refund-section p {
+      margin: 0.5rem 0 1rem;
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img 
+        src="https://img1.wsimg.com/isteam/ip/16aaa9f5-2ce0-4f68-82a7-a761afb906e4/blob.png/:/rs=w:157,h:200,cg:true,m/cr=w:157,h:200/qt=q:95" 
+        alt="SinWar Coin Logo" 
+        class="logo" 
+      />
+      <h1>SinWar Coin Presale</h1>
+    </div>
+
+    <div class="progress-container">
+      <div class="soft-cap-marker"></div>
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+   
+    <div class="progress-labels">
+      <span class="soft-cap-label">Soft Cap: 1,000,000 USDT</span>
+      <span>Hard Cap: 10,000,000 USDT</span>
+    </div>
+
+    <div class="progress-stats" id="progressStats">
+      Raised: 0 USDT / 10,000,000 USDT
+    </div>
+
+    <button id="connectWallet">Connect Wallet</button>
+
+    <div id="walletInfo" class="wallet-info" style="display: none;">
+      <p>Connected Wallet: <strong id="walletAddress"></strong></p>
+    </div>
+
+    <div id="buySection" style="display: none;">
+      <input 
+        type="number" 
+        id="usdtAmount" 
+        placeholder="Enter USDT (5 - 10000)" 
+        min="5" 
+        max="10000" 
+        step="1"
+      />
+      <button id="buyButton">Buy SinWar Coins</button>
+    </div>
+
+    <!-- Refund Section: only visible if 'refundsEnabled' == true -->
+    <div class="refund-section" id="refundSection">
+      <p>
+        Refunds have been enabled. If you purchased SinWar tokens, you must first
+        <strong>approve</strong> this presale contract to spend the same number of
+        SinWar tokens you bought. Then click "Claim Refund" to get your USDT back.
+      </p>
+      <button id="refundButton">Claim Refund</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    
+    <!-- "More details" link at the bottom -->
+    <div class="more-details">
+      <a href="https://yahyasinwarcoin.com/buy-now" target="_blank" rel="noopener noreferrer">
+        More details
+      </a>
+    </div>
+  </div>
+
+  <!-- Web3 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+  <script>
+    const CONFIG = {
+      PRESALE: {
+        ABI: [{"inputs":[{"internalType":"address","name":"_usdtAddress","type":"address"},{"internalType":"address","name":"_sinwarAddress","type":"address"},{"internalType":"address","name":"initialOwner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"EnforcedPause","type":"error"},{"inputs":[],"name":"ExpectedPause","type":"error"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"inputs":[],"name":"ReentrancyGuardReentrantCall","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Paused","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"totalContributions","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalTokensSold","type":"uint256"}],"name":"PresaleEnded","type":"event"},{"anonymous":false,"inputs":[],"name":"PresalePaused","type":"event"},{"anonymous":false,"inputs":[],"name":"PresaleUnpaused","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"usdtAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"tokenAmountReturned","type":"uint256"}],"name":"RefundClaimed","type":"event"},{"anonymous":false,"inputs":[],"name":"RefundsEnabled","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"usdtAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"tokenAmount","type":"uint256"}],"name":"TokensPurchased","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Unpaused","type":"event"},{"inputs":[],"name":"MAX_CONTRIBUTION","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_CONTRIBUTION","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRESALE_RATE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRESALE_TOKENS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claimRefund","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"usdtAmount","type":"uint256"}],"name":"contribute","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"contributions","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"enableRefunds","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"endPresale","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pausePresale","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"presaleEnded","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"purchasedTokens","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"refundsEnabled","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"sinwar","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalContributions","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalTokensSold","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"unpausePresale","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdrawUSDT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdrawUnsoldTokens","outputs":[],"stateMutability":"nonpayable","type":"function"}],
+        ADDRESS: '0xe953Da704Ab668F8166138115db6A0BFF8accA0a'
+      },
+      USDT: {
+        ABI: [{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":true,"inputs":[],"name":"_decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"_name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"_symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"burn","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"mint","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"renounceOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}],
+        ADDRESS: '0x55d398326f99059fF775485246999027B3197955'
+      },
+      NETWORK: {
+        CHAIN_ID: 56,
+        NAME: 'Binance Smart Chain'
+      }
+    };
+
+    const PRESALE_CONFIG = {
+      SOFT_CAP: 1000000,
+      HARD_CAP: 10000000
+    };
+
+    let web3;
+    let userAddress;
+    let presaleContract;
+    let usdtContract;
+
+    /**
+     * Initialize web3:
+     * - If MetaMask/other injection is present, use it.
+     * - Else, fallback to a read-only BSC RPC (public).
+     */
+    async function initializeWeb3() {
+      if (typeof window.ethereum !== 'undefined') {
+        // Use injected provider
+        web3 = new Web3(window.ethereum);
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', handleChainChanged);
+      } else {
+        // Fallback read-only mode
+        const bscRPC = 'https://bsc-dataseed.binance.org/';
+        web3 = new Web3(new Web3.providers.HttpProvider(bscRPC));
+      }
+      return true;
+    }
+
+    /**
+     * Attempt a seamless connection:
+     * - If the user has a wallet, request accounts.
+     * - If not, try deep-linking to MetaMask on mobile or
+     *   open MetaMask download page on desktop.
+     */
+    async function attemptSeamlessWalletConnection() {
+      if (typeof window.ethereum !== 'undefined') {
+        // There's an injected provider
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          await verifyNetwork();
+          userAddress = accounts[0];
+          updateUI();
+          initializeContracts();
+        } catch (error) {
+          console.error('Connection error:', error);
+          updateStatus('Connection failed: ' + error.message, true);
+        }
+      } else {
+        // No injected provider
+        if (isMobileDevice()) {
+          // Attempt deep link to MetaMask mobile
+          window.location.href = "https://metamask.app.link/dapp/sinwarcoin.github.io/sinwarcoin-presale";
+        } else {
+          // Desktop fallback: open MetaMask download
+          window.open("https://metamask.io/download.html", "_blank");
+        }
+      }
+    }
+
+    function isMobileDevice() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    /**
+     * Verify user is on correct chain (BSC) or attempt to switch/add it.
+     */
+    async function verifyNetwork() {
+      const chainId = await web3.eth.getChainId();
+      if (chainId !== CONFIG.NETWORK.CHAIN_ID) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: `0x${CONFIG.NETWORK.CHAIN_ID.toString(16)}` }]
+          });
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            await addNetworkToWallet();
+          } else {
+            updateStatus(`Please switch to ${CONFIG.NETWORK.NAME}`, true);
+          }
+        }
+      }
+    }
+
+    async function addNetworkToWallet() {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: `0x${CONFIG.NETWORK.CHAIN_ID.toString(16)}`,
+          chainName: CONFIG.NETWORK.NAME,
+          nativeCurrency: {
+            name: 'BNB',
+            symbol: 'BNB',
+            decimals: 18
+          },
+          rpcUrls: ['https://bsc-dataseed.binance.org/'],
+          blockExplorerUrls: ['https://bscscan.com/']
+        }]
+      });
+    }
+
+    /**
+     * Initialize contract objects
+     */
+    function initializeContracts() {
+      presaleContract = new web3.eth.Contract(CONFIG.PRESALE.ABI, CONFIG.PRESALE.ADDRESS);
+      usdtContract = new web3.eth.Contract(CONFIG.USDT.ABI, CONFIG.USDT.ADDRESS);
+    }
+
+    /**
+     * Update the progress bar & raised amount
+     */
+    async function updateProgress() {
+      try {
+        if (!usdtContract) return;
+        const balance = await usdtContract.methods.balanceOf(CONFIG.PRESALE.ADDRESS).call();
+        const balanceInUSDT = web3.utils.fromWei(balance, 'ether');
+        const progress = (balanceInUSDT / PRESALE_CONFIG.HARD_CAP) * 100;
+
+        document.getElementById('progressBar').style.width = `${Math.min(progress, 100)}%`;
+        document.getElementById('progressStats').innerHTML = `
+          Raised: ${Number(balanceInUSDT).toLocaleString()} USDT /
+          ${PRESALE_CONFIG.HARD_CAP.toLocaleString()} USDT
+        `;
+      } catch (error) {
+        console.error('Progress update error:', error);
+      }
+    }
+
+    /**
+     * Handle the Buy (contribute) flow
+     */
+    async function handleBuy() {
+      if (!userAddress) {
+        updateStatus('Please connect a wallet first.', true);
+        return;
+      }
+
+      const usdtAmount = parseFloat(document.getElementById('usdtAmount').value);
+      if (isNaN(usdtAmount) || usdtAmount < 5 || usdtAmount > 10000) {
+        updateStatus('Please enter an amount between 5 and 10,000 USDT.', true);
+        return;
+      }
+
+      try {
+        const amountInWei = web3.utils.toWei(usdtAmount.toString(), 'ether');
+        updateStatus('Approving USDT...');
+        await usdtContract.methods
+          .approve(CONFIG.PRESALE.ADDRESS, amountInWei)
+          .send({ from: userAddress });
+        
+        updateStatus('Processing purchase...');
+        await presaleContract.methods
+          .contribute(amountInWei)
+          .send({ from: userAddress });
+        
+        updateStatus('Purchase successful!');
+        await updateProgress();
+      } catch (error) {
+        console.error('Transaction error:', error);
+        updateStatus('Transaction failed: ' + error.message, true);
+      }
+    }
+
+    /**
+     * Check if refunds are enabled and toggle the refund section
+     */
+    async function updateRefundSection() {
+      if (!presaleContract) return;
+      try {
+        const refundsEnabled = await presaleContract.methods.refundsEnabled().call();
+        document.getElementById('refundSection').style.display = refundsEnabled
+          ? 'block'
+          : 'none';
+      } catch (error) {
+        console.error('Error checking refundsEnabled:', error);
+      }
+    }
+
+    /**
+     * Claim refund (user must have approved the correct tokens first)
+     */
+    async function handleRefund() {
+      if (!userAddress) {
+        updateStatus('Please connect a wallet first.', true);
+        return;
+      }
+
+      try {
+        updateStatus('Attempting to claim refund...');
+        await presaleContract.methods.claimRefund().send({ from: userAddress });
+        updateStatus('Refund successful! You should have your USDT back.');
+        await updateProgress();
+      } catch (error) {
+        console.error('Refund error:', error);
+        updateStatus('Refund failed: ' + error.message, true);
+      }
+    }
+
+    /**
+     * Wallet/Network event handlers
+     */
+    function handleAccountsChanged(accounts) {
+      if (accounts.length === 0) {
+        resetUI();
+      } else {
+        userAddress = accounts[0];
+        updateUI();
+      }
+    }
+    function handleChainChanged(chainId) {
+      if (parseInt(chainId) !== CONFIG.NETWORK.CHAIN_ID) {
+        resetUI();
+        updateStatus(`Please switch to ${CONFIG.NETWORK.NAME}`, true);
+      }
+    }
+
+    /**
+     * Update UI for a connected wallet
+     */
+    function updateUI() {
+      document.getElementById('connectWallet').style.display = 'none';
+      document.getElementById('walletInfo').style.display = 'block';
+      document.getElementById('buySection').style.display = 'block';
+
+      document.getElementById('walletAddress').textContent =
+        `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
+
+      updateRefundSection();
+    }
+
+    /**
+     * Reset UI to disconnected state
+     */
+    function resetUI() {
+      userAddress = null;
+      document.getElementById('connectWallet').style.display = 'block';
+      document.getElementById('walletInfo').style.display = 'none';
+      document.getElementById('buySection').style.display = 'none';
+      document.getElementById('refundSection').style.display = 'none';
+      document.getElementById('usdtAmount').value = '';
+    }
+
+    /**
+     * Utility to show status messages
+     */
+    function updateStatus(message, isError = false) {
+      const statusElement = document.getElementById('status');
+      statusElement.textContent = message;
+      statusElement.style.color = isError ? '#dc3545' : '#007bff';
+    }
+
+    /**
+     * Entry point
+     */
+    (async function init() {
+      // 1. Setup web3 (injected or fallback)
+      await initializeWeb3();
+      initializeContracts();
+
+      // 2. Always update progress and refund UI
+      await updateProgress();
+      await updateRefundSection();
+
+      // 3. Set up event listeners
+      document.getElementById('connectWallet').addEventListener('click', attemptSeamlessWalletConnection);
+      document.getElementById('buyButton').addEventListener('click', handleBuy);
+      document.getElementById('refundButton').addEventListener('click', handleRefund);
+
+      // 4. Check if user is already connected
+      if (typeof window.ethereum !== 'undefined') {
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length > 0) {
+          userAddress = accounts[0];
+          await verifyNetwork();
+          updateUI();
+        } else {
+          updateStatus('Read-only mode: Connect wallet to buy or claim refunds.');
+        }
+      } else {
+        // No injected provider => read-only
+        updateStatus('Read-only mode: No Web3 wallet detected. Connect wallet to buy.', false);
+      }
+
+      // 5. Poll every 15s for updated progress & refund status
+      setInterval(async () => {
+        await updateProgress();
+        await updateRefundSection();
+      }, 15000);
+    })();
+  </script>
+</body>
+</html>
